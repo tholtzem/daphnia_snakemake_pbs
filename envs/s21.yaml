@@ -1,0 +1,30 @@
+name: da 
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - mamba
+  - fastqc
+  - multiqc
+  - python
+  - ipython
+  - snakemake-minimal=6.2.0
+  - bbmap
+  - matplotlib
+  - numpy
+  - graphviz
+  - pigz
+  - samtools
+  - pandas
+  - sambamba=0.6.8
+  - pixy
+  - picard
+  - bamtools
+  - bcftools
+  - bedtools
+  - r-base
+  - r-devtools
+  - bioconductor-sushi
+  - r-tidyverse
+  - python
+  - ipython

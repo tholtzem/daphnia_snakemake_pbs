@@ -1,0 +1,20 @@
+__default__:
+  jobname: "{rule}.{wildcards}"
+  ncpus: 12
+  mem: "120gb"
+  walltime: "72:00:00"
+  #qos: "flux"
+  account: "c7701178"
+  queue: "f2100"
+  email: "tania.holtzem@uibk.ac.at"
+  mailon: "bea"
+  jobout: "oe"
+  outdir: "code/log/"
+
+  #nodes: 1
+  #ppn: 12
+
+map:
+  ncpus: 24
+  mem: "240gb"
+  walltime: "72:00:00"

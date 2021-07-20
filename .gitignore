@@ -20,7 +20,9 @@ code/log/*
 *.vcf
 *.gz
 bedtools/plots/*
-list/*
+*.tsv
+*.csv
+*.txt
 bbmap/*
 copy/
 README2.md

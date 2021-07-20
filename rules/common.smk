@@ -7,7 +7,7 @@ import pandas as pd
 configfile: 
   "config/config.yaml"
 
-# load sample info 
+## load sample info 
 #samples_information = pd.read_csv("samples.txt", sep='\t', index_col=False)
 samples_information = pd.read_csv("list/samRAPID.txt", sep='\t', index_col=False)
 sample_names = list(samples_information['sample'])
@@ -18,9 +18,20 @@ samples_set = zip(sample_names, sample_locations)
 samples_dict = dict(zip(sample_names, sample_locations))
 d = dict(zip(sample_bam, sample_ID))
 
-# load chromosom info
-chromosom_information = pd.read_csv("list/dgal_rapid_ChromInfo.csv", sep=',', index_col=False)
-#chromosom_information
+## more sample information
+metadata = pd.read_csv("list/sequenceIDs_update_20210701.csv", sep=',', index_col=False)
+sample = list(metadata['ID'])
+species = list(metadata['species'])
+region = list(metadata['region'])
+latitude = list(metadata['latitude'])
+longitude = list(metadata['longitude'])
+lake = list(metadata['lake'])
+
+
+## load chromosom info
+#chromosom_information = pd.read_csv("list/dgal_rapid_ChromInfo.csv", sep=',', index_col=False)
+chromosom_information = pd.read_csv("list/dgal_rapid_Chrom_dgal1_dgal10.csv", sep=',', index_col=False)
+### chromosom_information
 chromosom_names = list(map(str, chromosom_information['chrom']))
 chromosom_length= list(chromosom_information['length'])
 chromosom_start = list(chromosom_information['start'])

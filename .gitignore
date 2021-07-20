@@ -16,6 +16,9 @@ code/log/*
 *.bed*
 *.OU
 *.ER
+*.vcf.gz
+*.vcf
+*.gz
 bedtools/plots/*
 list/*
 bbmap/*

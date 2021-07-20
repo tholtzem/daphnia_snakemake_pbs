@@ -86,6 +86,6 @@ fi
 
 
 # Initiating snakemake and running workflow in cluster mode
-snakemake --use-envmodules --profile config/pbs-torque/ --latency-wait 900 --restart-times 3 --rerun-incomplete
+snakemake --use-envmodules --profile config/pbs-torque/ --latency-wait 900
 # Printing out job summary
 qstat -f $PBS_JOBID

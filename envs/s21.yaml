@@ -8,7 +8,7 @@ dependencies:
   - multiqc
   - python
   - ipython
-  - snakemake-minimal=6.2.0
+  - snakemake-minimal=6.5.2
   - bbmap
   - matplotlib
   - numpy
@@ -28,3 +28,4 @@ dependencies:
   - r-tidyverse
   - python
   - ipython
+  - vcftools

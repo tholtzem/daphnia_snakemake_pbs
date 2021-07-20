@@ -27,5 +27,32 @@ qsub code/clusterSnakemake.pbs
 conda env update --name ta --file envs/s21.yaml
 ```
 
+## mamba
+
+Mamba (https://github.com/mamba-org/mamba) is a reimplementation of the conda package manager in C++.
+
+```
+# First, remove conda environment
+conda env remove -n eggs
+
+# Load Anaconda on cluster (here mach2):
+module load Anaconda3/2021.04/miniconda-base-2021.04
+
+# To use conda commands in your current shell session, first do:
+source $UIBK_CONDA_PROFILE
+
+# Create environment from yaml file (in envs/):
+conda init bash
+mamba env create -f envs/s21.yaml
+
+# Activate the environment
+conda activate eggs
+
+# if you've added new software to install to the conda environment, then you can update:
+mamba env update --name eggs --file envs/s21.yaml
+
+
+```
+
 
 

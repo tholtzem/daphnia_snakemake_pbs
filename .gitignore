@@ -23,6 +23,7 @@ bedtools/plots/*
 list/*.tsv
 list/*.csv
 list/*.list
+*.list
 *.txt
 bbmap/*
 copy/

@@ -21,7 +21,7 @@ d = dict(zip(sample_bam, sample_ID))
 ## more sample information
 metadata = pd.read_csv("list/sequenceIDs_update_20210701.csv", sep=',', index_col=False)
 sample = list(metadata['ID'])
-species = list(metadata['species'])
+species = list(pd.unique(metadata['species']))
 region = list(metadata['region'])
 latitude = list(metadata['latitude'])
 longitude = list(metadata['longitude'])
@@ -29,8 +29,8 @@ lake = list(metadata['lake'])
 
 
 ## load chromosom info
-#chromosom_information = pd.read_csv("list/dgal_rapid_ChromInfo.csv", sep=',', index_col=False)
-chromosom_information = pd.read_csv("list/dgal_rapid_Chrom_dgal1_dgal10.csv", sep=',', index_col=False)
+chromosom_information = pd.read_csv("list/dgal_rapid_ChromInfo.csv", sep=',', index_col=False)
+#chromosom_information = pd.read_csv("list/dgal_rapid_Chrom_dgal1_dgal10.csv", sep=',', index_col=False)
 ### chromosom_information
 chromosom_names = list(map(str, chromosom_information['chrom']))
 chromosom_length= list(chromosom_information['length'])

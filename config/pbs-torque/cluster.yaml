@@ -20,8 +20,8 @@ map:
   walltime: "72:00:00"
 
 bcf_mpileup_call:
-  ncpus: 36
-  mem: "360gb"
+  ncpus: 48
+  mem: "480gb"
   walltime: "72:00:00"
 
 

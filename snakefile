@@ -19,8 +19,8 @@ rule all:
     expand('list/makePOPlist.done', species=species),
     #expand('deDup/{sample}.{ext}', sample=sample_ID, ext=['bb.RAPID.dedup.bam.bai']),
     #expand('bcftools/daphnia_init_dgal1_{species}.{ext}', species=species, ext=['vcf.gz']),
-    expand('bcftools/daphnia_init_{chrom}_{species}.{ext}', chrom=chromosom_names[1:10], species=species, ext=['vcf.gz'])
-
+    expand('bcftools/daphnia_init_{chrom}_{species}.{ext}', chrom=chromosom_names[0:20], species=species, ext=['vcf.gz'])
+    #expand('bcftools/daphnia_init_{chrom}_longispina.{ext}', chrom=chromosom_names[0:10], ext=['vcf.gz'])
 # -----------------------------------------------
 
 

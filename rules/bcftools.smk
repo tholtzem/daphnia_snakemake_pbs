@@ -40,11 +40,10 @@ rule bcf_mpileup_call:
     touched = 'list/makePOPlist.done'
   output:
     'bcftools/daphnia_init_{chrom}_{species}.vcf.gz'
-    #'bcftools/daphnia_init_dgal1_{species}.vcf.gz'
   log:
     'log/daphnia_init_{chrom}_{species}.log'
     #'log/daphnia_init_dgal1_{species}.log'
-  threads: 36
+  threads: 48
   message: """--- Generate AllSites vcf using BCFtools (mpileup/call) ---"""
   shell:
     """

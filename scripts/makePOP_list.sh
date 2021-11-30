@@ -14,5 +14,7 @@ for SAMPLEFILE in `cat $SAMPLELIST | tail -n+2`; do
 	#echo mkdir deDup/$SPECIES
 	#echo rsync -avP deDup/$SAMPLEFILE* deDup/$SPECIES/
 	ls deDup/$SAMPLEFILE*bam >> list/$SPECIES.list
+        # For each species, make a list of chromosom VCFs
+        #ls -v vcf/*$SPECIES*vcf.gz >> list/VCF_$SPECIES.list
 done
 

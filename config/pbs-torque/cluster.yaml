@@ -6,7 +6,7 @@ __default__:
   #qos: "flux"
   account: "c7701178"
   queue: "f2100"
-  email: "tania.holtzem@uibk.ac.at"
+  email: "tania.holtzem@hotmail.de"
   mailon: "bea"
   jobout: "oe"
   outdir: "code/log/"
@@ -20,8 +20,13 @@ map:
   walltime: "72:00:00"
 
 bcf_mpileup_call:
-  ncpus: 48
-  mem: "480gb"
+  ncpus: 24
+  mem: "240gb"
+  walltime: "72:00:00"
+
+bcftools_mpileup_call:
+  ncpus: 24
+  mem: "240gb"
   walltime: "72:00:00"
 
 

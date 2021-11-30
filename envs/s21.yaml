@@ -29,3 +29,5 @@ dependencies:
   - python
   - ipython
   - vcftools
+  - vcflib
+  - tabix

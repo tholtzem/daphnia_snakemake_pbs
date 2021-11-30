@@ -24,14 +24,14 @@
 ####    or if you use software that is restricted to campus use.
 
 ###PBS -A c7701178
-##PBS -q #f2100	
+#PBS -q f2100	
 ##fluxod
 
 #### #### ####  These are the least frequently changing options
 
 ####  Your e-mail address and when you want e-mail
 
-#PBS -M tania.holtzem@uibk.ac.at
+#PBS -M tania.holtzem@hotmail.de
 #PBS -m bea
 
 ####  Join output and error; pass environment to job
@@ -86,6 +86,8 @@ fi
 
 
 # Initiating snakemake and running workflow in cluster mode
-snakemake --use-envmodules --profile config/pbs-torque/ --latency-wait 900
+##snakemake --use-envmodules --profile config/pbs-torque/ --latency-wait 900
+snakemake --use-envmodules --profile config/pbs-torque/ --latency-wait 20 --restart-times 4 --jobscript code/load_condaenv.sh
+
 # Printing out job summary
 qstat -f $PBS_JOBID

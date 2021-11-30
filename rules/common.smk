@@ -37,6 +37,9 @@ chromosom_length= list(chromosom_information['length'])
 chromosom_start = list(chromosom_information['start'])
 chromosom_end = list(chromosom_information['end'])
 
+## load prefix list of VCF chromosoms
+#chromosom_vcfPrefix = pd.read_csv("list/vcfChrom_prefix.list", sep=',', index_col=False)
+
 ###### helper functions ######
 
 #def getFqHome(sample):
@@ -58,3 +61,7 @@ for key, value in d.items():
 df = pd.DataFrame.from_dict(new_d, orient="index")
 df.to_csv("list/new_d.csv")
 
+#def get_input_for_list_ChromVCF(wildcards):
+#  ck_output = checkpoints.bcftools_mpileup_call.get(**wildcards).output[0]
+#  VCF, = glob_wildcards(os.path.join(ck_output, "{sample}.vcf.gz"))
+#  return expand(os.path.join(ck_output, "{SAMPLE}.vcf.gz"), SAMPLE=VCF)

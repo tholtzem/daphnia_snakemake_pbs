@@ -19,6 +19,7 @@ code/log/*
 *.vcf.gz
 *.vcf
 *.gz
+*.bcf
 bedtools/plots/*
 list/*.tsv
 list/*.csv

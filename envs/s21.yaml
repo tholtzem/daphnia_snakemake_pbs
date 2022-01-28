@@ -9,7 +9,7 @@ dependencies:
   - python
   - ipython
   - snakemake-minimal=6.5.2
-  - bbmap
+  - bbmap-38.93-0
   - matplotlib
   - numpy
   - graphviz

@@ -15,7 +15,7 @@
 
 ###PBS -l nodes=2:ppn=12,pmem=4000mb
 #PBS -l select=1:mem=240gb:ncpus=24
-#PBS -l walltime=120:00:00
+#PBS -l walltime=240:00:00
 ##PBS -l qos=flux
 
 ####  Flux account and queue specification here
@@ -24,7 +24,7 @@
 ####    or if you use software that is restricted to campus use.
 
 ###PBS -A c7701178
-#PBS -q f2100	
+#PBS -q f2800	
 ##fluxod
 
 #### #### ####  These are the least frequently changing options

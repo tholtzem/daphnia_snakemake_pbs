@@ -19,14 +19,13 @@ map:
   mem: "240gb"
   walltime: "72:00:00"
 
-bcf_mpileup_call:
-  ncpus: 24
-  mem: "240gb"
-  walltime: "72:00:00"
-
 bcftools_mpileup_call:
-  ncpus: 24
-  mem: "240gb"
+  ncpus: 36
+  mem: "360gb"
   walltime: "72:00:00"
 
+bcftools_mpileup_call_daphnia:
+  ncpus: 36
+  mem: "360gb"
+  walltime: "240:00:00"
 

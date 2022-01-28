@@ -37,18 +37,51 @@ rule index_bam:
 rule bcftools_mpileup_call:
   input:
     ref = config['ref'],
-    touched = 'list/makePOPlist.done',
+    touched = 'list/makePOPlist.done'#,
     #bai = 'deDup/{sample}.bb.RAPID.dedup.bam.bai'
   output:
-    'vcf/daphnia_init_{chrom}_{species}.vcf.gz'
+    #'vcf/daphnia_init_{chrom}_{species}.vcf.gz'
+    'bcf/daphnia_init_{chrom}_{species}.bcf'
   log:
-    'log/daphnia_init_{chrom}_{species}_vcf.log'
+    'log/daphnia_init_{chrom}_{species}_bcf.log'
   threads: 36
-  message: """--- Generate AllSites vcf using BCFtools (mpileup/call) ---"""
+  message: """--- Generate AllSites vcf/bcf using BCFtools (mpileup/call) ---"""
   shell:
     """
-    bcftools mpileup -f {input.ref} -b list/{wildcards.species}.list -r {wildcards.chrom} -a AD,DP | bcftools call -m -Oz -f GQ -o {output} --threads {threads} 2> {log}
+    bcftools mpileup -Ou -f {input.ref} -b list/{wildcards.species}.list -r {wildcards.chrom} -a AD,DP --threads {threads} | bcftools call -m -Ob -f GQ -o {output} --threads {threads} 2> {log}
     """
+
+
+rule bcftools_mpileup_all:
+  input:
+    ref = config['ref'],
+    bam_list = 'list/daphnia118.list'
+  output:
+    mpileup = 'bcf/all/daphnia_init_{chrom}.mpileup.bcf'
+  log:
+    'log/daphnia_init_{chrom}_mpileup.log'
+  threads: 24
+  message: """--- Generate AllSites bcf containing GLs with BCFtools mpileup ---"""
+  shell:
+    """
+    bcftools mpileup -Ou -o {output.mpileup} -f {input.ref} -b {input.bam_list} -r {wildcards.chrom} -a AD,DP --threads {threads} 2> {log}
+    """
+
+
+rule bcftools_call_all:
+  input:
+    mpileup = 'bcf/all/daphnia_init_{chrom}.mpileup.bcf'
+  output:
+    calls = 'bcf/all/daphnia_init_{chrom}.call.bcf'
+  log:
+    'log/daphnia_init_{chrom}_bcf.log'
+  threads: 24
+  message: """--- Generate AllSites bcf using BCFtools call ---"""
+  shell:
+    """
+    bcftools call -m -Ob -f GQ -o {output.calls} {input.mpileup} --threads {threads} 2> {log}
+    """
+
 
 rule list_chromVCFs:
   input:

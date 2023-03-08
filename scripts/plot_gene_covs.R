@@ -1,9 +1,6 @@
 rm(list=c(ls()))
-<<<<<<< HEAD
 setwd("/home/uibk/c7701178/scratch/DAPHNIA/daphnia_snakemake_pbs/")
-=======
-setwd("/home/tania/github/daphnia_snakemake_pbs/")
->>>>>>> 7ef2a498248489e565ed62fc270d79150256a09f
+#setwd("/home/tania/github/daphnia_snakemake_pbs/")
 getwd()
 
 ##  This R script creates a plot of read coverage of reads based on bedtools genomecov -bga output
@@ -26,7 +23,7 @@ head(cov)
 
 names <- list(args[1])
 
-# extract the genome-wide (i.e., no the per-chromosome)   histogram entries
+# extract the genome-wide (i.e., no the per-chromosome) histogram entries
 gcov = cov[cov[,1] == 'genome',]
 head(gcov)
 gcov

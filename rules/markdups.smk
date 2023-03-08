@@ -1,3 +1,4 @@
+
 rule remove_duplicates:
   input:
     mrgd = 'bbmap/rapid/{ID}.merged.bb.RAPID.bam'

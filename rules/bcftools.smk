@@ -10,6 +10,7 @@ rule ls_dedupBAM:
     ls deDup/*dedup.bam > {output} 2> {log}
     """
 
+
 rule makePop_lists:
   input:#
   output:
@@ -20,6 +21,7 @@ rule makePop_lists:
     """
     scripts/makePOP_list.sh
     """
+
 
 rule index_bam:
   input:
@@ -34,17 +36,17 @@ rule index_bam:
     """
 
 
+
 rule bcftools_mpileup_call:
   input:
     ref = config['ref'],
     touched = 'list/makePOPlist.done'#,
     #bai = 'deDup/{sample}.bb.RAPID.dedup.bam.bai'
   output:
-    #'vcf/daphnia_init_{chrom}_{species}.vcf.gz'
     'bcf/daphnia_init_{chrom}_{species}.bcf'
   log:
     'log/daphnia_init_{chrom}_{species}_bcf.log'
-  threads: 36
+  threads: 24
   message: """--- Generate AllSites vcf/bcf using BCFtools (mpileup/call) ---"""
   shell:
     """
@@ -52,116 +54,97 @@ rule bcftools_mpileup_call:
     """
 
 
-rule bcftools_mpileup_all:
+
+rule list_chromBCFs:
   input:
-    ref = config['ref'],
-    bam_list = 'list/daphnia118.list'
+    #'bcf/daphnia_init_{chrom}_{species}.bcf'
   output:
-    mpileup = 'bcf/all/daphnia_init_{chrom}.mpileup.bcf'
+    'list/BCF_{species}.list'
   log:
-    'log/daphnia_init_{chrom}_mpileup.log'
-  threads: 24
-  message: """--- Generate AllSites bcf containing GLs with BCFtools mpileup ---"""
-  shell:
-    """
-    bcftools mpileup -Ou -o {output.mpileup} -f {input.ref} -b {input.bam_list} -r {wildcards.chrom} -a AD,DP --threads {threads} 2> {log}
-    """
-
-
-rule bcftools_call_all:
-  input:
-    mpileup = 'bcf/all/daphnia_init_{chrom}.mpileup.bcf'
-  output:
-    calls = 'bcf/all/daphnia_init_{chrom}.call.bcf'
-  log:
-    'log/daphnia_init_{chrom}_bcf.log'
-  threads: 24
-  message: """--- Generate AllSites bcf using BCFtools call ---"""
-  shell:
-    """
-    bcftools call -m -Ob -f GQ -o {output.calls} {input.mpileup} --threads {threads} 2> {log}
-    """
-
-
-rule list_chromVCFs:
-  input:
-    #'vcf/daphnia_init_{chrom}_{species}.vcf.gz'
-  output:
-    'list/VCF_{species}.list'
+    'log/BCF_{species}.list.log'
   message: """ --- Create a list of chromosome VCFs for each species --- """
   shell:
     """
-      ls -v vcf/daphnia_init_*_{wildcards.species}.vcf.gz > {output}
+      ls -v bcf/daphnia_init_*_{wildcards.species}.bcf > {output}
     """
+
 
 rule bcftools_concat:
   input:
-    'list/VCF_{species}.list'
-    #'vcf/daphnia_init_{chrom}_{species}.vcf.gz'
+    'list/BCF_{species}.list'
   output:
-    #touch('vcf/concat/daphnia_concat_{species}.done')
-    'vcf/concat/daphnia_{species}.vcf.gz'
+    bcf = 'bcf/concat/daphnia_{species}.bcf',
+    csi = 'bcf/concat/daphnia_{species}.bcf.csi'
   log:
-    'log/daphnia_ConcatVCF_{species}.log'
+    'log/daphnia_ConcatBCF_{species}.log'
   threads: 12
-  message: """--- Concatenate chromosome VCFs into one VCF ---"""
+  message: """--- Concatenate all chromosome-BCFs into one single BCF file and add all tags ---"""
   shell:
     """
-    bcftools concat -f {input} -Oz -o {output} --threads {threads} 2> {log}
+    bcftools concat -f {input} | bcftools +fill-tags -Ob -o {output.bcf} --threads {threads} &&
+    bcftools index {output.bcf} {output.csi} 2> {log}
     """
 
-rule bcftools_filltags:
-  input:
-    'vcf/concat/daphnia_{species}.vcf.gz'
-  output:
-    'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz'
-  log:
-    'log/daphnia_{species}_alltags_vcf.log'
-  message: """--- Add all tags ---"""
-  shell:
-    """
-    bcftools +fill-tags {input} -Oz -o {output} -- -t all 2> {log}
-    """
 
 #rule bcftools_merge:
 #  input:
-#    #'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz'
+#    #bcf = 'bcf/concat/daphnia_{species}.bcf',
 #  output:
-#    'vcf/concat/tags/daphnia.vcf.gz'
+#    'bcf/merged/daphnia_9pops.bcf'
 #  log:
-#    'log/daphnia_{species}_alltags_vcf.log'
+#    'log/daphnia_9pops.log'
+#  threads: 12
 #  message: """--- Add all tags ---"""
 #  shell:
 #    """
-#    bcftools merge daphnia_*_alltags.vcf.gz -Oz -o {output} 2> {log}
+#    DIR=(bcf/concat)
+#    bcftools merge $DIR/daphnia_cucullata.bcf $DIR/daphnia_dentifera.bcf $DIR/daphnia_galeata.bcf $DIR/daphnia_lacustris.bcf $DIR/daphnia_longispina.bcf $DIR/daphnia_longispinaFIN.bcf $DIR/daphnia_mendotae.bcf $DIR/daphnia_umbra.bcf $DIR/daphnia_zschokkei.bcf -Ob -o {output} 2> {log}
 #    """
 
 
-rule vcf_randomsample:
+rule bcftools_merge_10pops:
   input:
-    'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz'
+    #'bcf/daphnia_{species}.vcf.gz',
   output:
-    'vcf/concat/tags/daphnia_{species}_alltags_rndsubset.vcf.gz'
-  log: 'log/daphnia_{species}_alltags_rndsubset.log'
-  threads: 24
-  message: """--- Randomly subsample vcf ---"""
+    'bcf/merged/daphnia_10pops.bcf'
+  log:
+    'log/daphnia_10pops.log'
+  threads: 12
+  message: """--- Merge ---"""
   shell:
     """
-    bcftools view {input} | vcfrandomsample -r 0.0007 | bgzip -c > {output} 2> {log}
+    DIR=(bcf/concat)
+    bcftools merge $DIR/daphnia_cucullata.bcf $DIR/daphnia_curvirostris.bcf $DIR/daphnia_dentifera.bcf $DIR/daphnia_galeata.bcf $DIR/GRE1408.bcf $DIR/daphnia_lacustris.bcf $DIR/daphnia_longispina.bcf $DIR/daphnia_longispinaFIN.bcf $DIR/daphnia_mendotae.bcf $DIR/daphnia_umbra.bcf $DIR/daphnia_zschokkei.bcf | bcftools +fill-tags -Ob -o {output} -- -t all 2> {log}
     """
 
 
-#rule bcftools_prefilter:
-#  input:
-#    'vcf/concat/daphnia_{species}_alltags.vcf.gz'
-#  output:
-#    'vcf/concat/daphnia_{species}_prefiltered.vcf.gz'
-#  log:
-#    'log/daphnia_{species}_prefiltered.log'
-#  message: """ --- Prefilter the allSites VCF using bcftools, set genotypes according to filtering criteria and tabix output vcf --- """
-#  shell:
-#    """
-#    bcftools view --exclude-types indels --max-alleles 2 {input}  | bcftools +setGT - -- -n . -t q -e 'FORMAT/DP>=10&(GQ>=30|RGQ>=30)' | bgzip -c > {output} && tabix -p vcf {output}
-#    """
+rule bcf2vcf_10pops:
+  input:
+    'bcf/merged/daphnia_10pops.bcf'
+  output:
+    'vcf/daphnia_10pops.vcf.gz'
+  log:
+    'log/daphnia_10pops_BCF2VCF.log'
+  message: """ --- Convert bcf2vcf --- """
+  threads: 12
+  shell:
+    """
+    bcftools index -f --csi {input} --threads {threads} &&
+    bcftools convert --threads {threads} -Oz -o {output} {input} 2> {log}
+    """
 
 
+rule bcf2vcf:
+  input:
+    'bcf/concat/daphnia_{species}.bcf'
+  output:
+    'vcf/daphnia_{species}.vcf.gz'
+  log:
+   'log/daphnia_{species}_BCF2VCF.log'
+  message: """ --- Convert bcf2vcf --- """
+  threads: 12
+  shell:
+    """
+    bcftools index -f --csi {input} --threads {threads} &&
+    bcftools convert --threads {threads} -Oz -o {output} {input} 2> {log}
+    """

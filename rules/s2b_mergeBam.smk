@@ -22,6 +22,16 @@ rule bamIndex:
     samtools index {input.aln} {output.idx}
     """
 
+#rule replacegroups:
+#  output:
+#    'replaceReadGroup_umbra.done'
+#  threads: 12
+#  message: """ replace read groups umbra """
+#  shell:
+#    """
+#    ./scripts/ReplaceReadGroup.sh 
+#    """
+
 rule mergeBAM:
   input:
     aln = 'new_d.csv'
@@ -46,4 +56,3 @@ rule mergeBAM:
         os.system(final_string)
       else:
         os.system(alt_string)
-

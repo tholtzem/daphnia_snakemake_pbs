@@ -29,9 +29,9 @@ sample_ID = list(samples_information['sample_id'])
 
 ## load chromosom info
 #chromosom_information = pd.read_csv("list/dgal_rapid_ChromInfo.csv", sep=',', index_col=False)
-#chromosom_information = pd.read_csv("list/dgal_rapid_Chrom_dgal1_dgal10.csv", sep=',', index_col=False)
+chromosom_information = pd.read_csv("list/Dgaleata_M5_PBasm.FINAL.Chrom.list", sep=',', index_col=False)
 ### chromosom_information
-#chromosom_names = list(map(str, chromosom_information['chrom']))
+chromosom_names = list(map(str, chromosom_information['chrom']))
 #chromosom_length= list(chromosom_information['length'])
 #chromosom_start = list(chromosom_information['start'])
 #chromosom_end = list(chromosom_information['end'])

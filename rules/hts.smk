@@ -452,6 +452,21 @@ rule realign_indel:
     """
 
 
+rule samtools_coverage:
+  input:
+    realigned = 'realigned/HiC/minid95/{sample}.bb.HiC.realigned.bam'
+  output:
+    coverage = 'depth/HiC/minid95/{sample}.bb.HiC.realigned.bam.coverage.hist'
+  log: 'log/HiC/minid95/{sample}.bb.HiC.realigned.bam.coverage.hist.log'
+  threads: 12
+  message: """ Produce an ASCII-art histogram of coverage per chromosome   """
+  shell:
+    """
+    samtools coverage -A -o {output.coverage} {input.realigned} 2> {log}
+    """
+
+
+
 rule samtools_depth:
   input:
     realigned = 'realigned/HiC/minid95/{sample}.bb.HiC.realigned.bam'
@@ -533,3 +548,5 @@ rule Qmap_real:
     """
     /apps/uibk/bin/sysconfcpus -n 12 qualimap bamqc -bam {input.realigned} -outdir {output} --java-mem-size=100g 2> {log}
     """
+
+

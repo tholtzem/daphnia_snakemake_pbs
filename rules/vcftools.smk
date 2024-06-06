@@ -1,91 +1,125 @@
-rule tabix:
+rule count_variants:
   input:
-    'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz'
+    'vcf/daphnia_{species}.vcf.gz'
   output:
-    'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz.tbi'
-  log:
-    "log/tabix_daphnia_{species}_alltags.vcf.log"
-  shell:
-    """
-    tabix -p vcf {input}
-    """
-
-rule HardFilterVCF_Allsites:
-  input: 
-    vcf = 'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz',
-    tabix = 'vcf/concat/tags/daphnia_{species}_alltags.vcf.gz.tbi'
-  output:
-    'vcf/filtered/daphnia_{species}_Allsites_hardfiltered_1.vcf.gz'
-  log: 'log/hardfiltered_Allsites_{species}.log'
-  threads: 2
-  message: """--- Hard filter AllSites VCF (GATKs best practices) ---"""
-  shell:
-    """
-    bcftools filter {input.vcf} -i 'FS<60.0 && MQ>40' -Oz -o {output} 2> {log}
-    """
-
-
-rule further_filtering:
-  input: 
-    'vcf/filtered/daphnia_{species}_Allsites_hardfiltered_1.vcf.gz'
-  output:
-    'vcf/filtered/daphnia_{species}_Allsites_hardfiltered_2.vcf.gz'
-  log: 'log/hardfiltered_Allsites_{species}.log'
-  threads: 2
-  message: """--- Further filtering of AllSites VCF ---"""
-  shell:
-    """
-    vcftools --gzvcf {input} --remove-indels --max-missing 0.8 --min-meanDP 20 --max-meanDP 60 --recode --stdout | gzip -c > {output}
-    """
-
-
-
-rule filterVCF_Invariant:
-  input: 
-    'vcf/filtered/daphnia_{species}_Allsites_hardfiltered_2.vcf.gz'
-  output:
-    vcf = 'vcf/filtered/daphnia_{species}_invariant.vcf.gz',
-    tabix = 'vcf/filtered/daphnia_{species}_invariant.vcf.gz.tbi'
-  log: 'log/{species}_invariantVCF.log'
-  threads: 2
-  message: """--- Create a filtered VCF containing only invariant sites ---"""
-  shell:
-    """
-    vcftools --gzvcf {input} --max-maf 0 --recode --stdout | gzip -c > {output.vcf} && tabix -p vcf {output.tabix} 2> {log}
-    """
-
-
-rule filterVCF_Variant:
-  input: 
-    'vcf/filtered/daphnia_{species}_Allsites_hardfiltered_2.vcf.gz'
-  output:
-    vcf = 'vcf/filtered/daphnia_{species}_variant.vcf.gz',
-    tabix = 'vcf/filtered/daphnia_{species}_variant.vcf.gz.tbi'
-  log: 'log/{species}_variantVCF.log'
-  threads: 2
-  message: """--- Create a filtered VCF containing only variant sites ---"""
-  shell:
-    """
-    vcftools --gzvcf {input} --mac 1 --minQ 30 --minDP 20 --maxDP 60 --minGQ 30  --recode --stdout | gzip -c > {output.vcf} && tabix -p vcf {output.tabix} 2> {log}
-    """
-
-
-rule finalVCF:
-  input:
-    invariant = 'vcf/filtered/daphnia_{species}_invariant.vcf.gz',
-    tb1 = 'vcf/filtered/daphnia_{species}_invariant.vcf.gz.tbi',
-    variant = 'vcf/filtered/daphnia_{species}_variant.vcf.gz',
-    tb2 = 'vcf/filtered/daphnia_{species}_variant.vcf.gz.tbi'
-  output:
-    'vcf/filtered/daphnia_{species}_final.vcf.gz'
-  log: 'log/daphnia_{species}_final.vcf.log'
+    'vcf/stats/daphnia_{species}_nbrSites.txt'
+  log: 'log/daphnia_{species}_nbrSites.log'
   threads: 12
-  message: """ --- Combine variantVCF and invariantVCF --- """
+  message: """--- Count variants ---"""
   shell:
     """
-    bcftools concat --allow-overlaps {input.invariant} {input.variant} -Oz -o {output} 2> {log}
+    bcftools view -H {input} | wc -l > {output} 2> {log}
+    """
+
+
+rule vcf_randomsample:
+  input:
+    'vcf/daphnia_{species}.vcf.gz'
+  output:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  log: 'log/daphnia_{species}_100Ksubset.log'
+  threads: 12
+  message: """--- Count variants and randomly subsample vcf ---"""
+  shell:
+    """
+    bcftools view {input} | vcfrandomsample -r 0.0007 | bgzip -c > {output} 2> {log}
+    """
+
+
+rule allel_frequency:
+  input: 
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.frq.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.frq.log'
+  threads: 12
+  message: """--- Calculate allele frequency ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --freq2 --out vcf/stats/daphnia_{wildcards.species}_100Ksubset --max-alleles 2 2> {log}
+    """
+
+
+rule mean_depth_individual:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.idepth.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.idepth.log'
+  threads: 12
+  message: """--- Calculate mean depth per individual ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --depth --out vcf/stats/daphnia_{wildcards.species}_100Ksubset 2> {log}
+    """
+
+
+rule mean_depth_site:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.ldepth.mean.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.ldepth.mean.log'
+  threads: 12
+  message: """--- Calculate mean depth per site ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --site-mean-depth --out vcf/stats/daphnia_{wildcards.species}_100Ksubset 2> {log}
+
+    """
+
+rule site_quality:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.lqual.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.lqual.log'
+  threads: 12
+  message: """--- Calculate site quality  ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --site-quality --out vcf/stats/daphnia_{wildcards.species}_100Ksubset 2> {log}
+    """
+
+
+rule missingdata_individual:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.imiss.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.imiss.log'
+  threads: 12
+  message: """--- Calculate proportion of missing data per individual ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --missing-indv --out vcf/stats/daphnia_{wildcards.species}_100Ksubset 2> {log}
     """
 
 
 
+rule missingdata_site:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    touch('vcf/stats/daphnia_{species}_100Ksubset.lmiss.done')
+  log: 'log/stats/daphnia_{species}_100Ksubset.lmiss.log'
+  threads: 12
+  message: """--- Calculate proportion of missing data per site ---"""
+  shell:
+    """
+    vcftools --gzvcf {input} --missing-site --out vcf/stats/daphnia_{wildcards.species}_100Ksubset 2> {log}
+    """
 
+
+rule print_MQ_DP:
+  input:
+    'vcf/subset/daphnia_{species}_100Ksubset.vcf.gz'
+  output:
+    'vcf/stats/daphnia_{species}_100Ksubset.MQ_DP.txt'
+  log: 'log/stats/daphnia_{species}_100Ksubset.MQ_DP.log'
+  threads: 12
+  message: """--- For each site print MQ, DP values ---"""
+  shell:
+    """
+    bcftools query {input} -f'%MQ\t%DP\n' > {output} 2> {log}
+    """

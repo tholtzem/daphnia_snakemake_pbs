@@ -20,6 +20,8 @@ code/log/*
 *.vcf
 *.gz
 *.bcf
+*.png
+*.pdf
 bedtools/plots/*
 list/*.tsv
 list/*.csv
@@ -29,3 +31,4 @@ list/*.list
 bbmap/*
 copy/
 README2.md
+qmap/
